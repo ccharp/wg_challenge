@@ -58,7 +58,8 @@ def test_get_path():
     response = client.get("*")
     assert response.status_code == 404 
     assert response.json() == {"detail": "Invalid path"}
-   
+
+
 TEST_PATH = Path("app/test/")
 
 def test_delete():

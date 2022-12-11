@@ -11,20 +11,30 @@ def validate_path(path: Path) -> bool:
     #       VERY careful access to (at least) the local file system. 
     return path.exists()
 
-# TODO: what exceptions can come up from this?
-def ls(path: Path) -> str:
-    # TODO: does split lines work if there are no files?
-    glob = path.glob("*")
-
-    build_obj = lambda p : {
-            "filename": p.name,
-            "owner": p.owner(),
-            "group": p.group(),
-            "size": p.stat().st_size,
-            "permissions": oct(p.stat().st_mode),
+def build_file_info(path: Path) -> dict:
+    return {
+        "filename": path.name,
+        "owner": path.owner(),
+        "group": path.group(),
+        "size": path.stat().st_size,
+        "permissions": oct(path.stat().st_mode),
     }
 
-    return [build_obj(p) for p in glob]
+def ls_dir(path: Path) -> List[dict]:
+    glob = path.glob("*")
+    return [build_file_info(p) for p in glob]
+
+def ls_file(path: Path) -> List[dict]:
+    file_info = build_file_info(path)
+    file_info['file_contents'] = path.read_text()
+    return file_info
+
+# TODO: what exceptions can come up from this?
+def ls(path: Path) -> str:
+    if path.is_file():
+        return ls_file(path)
+
+    return ls_dir(path)
 
 # TODO: I'm not comfortable enough with security considerations here 
 #       but here's the idea...
