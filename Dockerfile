@@ -14,13 +14,12 @@ RUN python3 -m venv $POETRY_VENV \
 # Add `poetry` to PATH
 ENV PATH="${PATH}:${POETRY_VENV}/bin"
 
-WORKDIR /app
+WORKDIR /code
 
 # Install dependencies
-COPY poetry.lock pyproject.toml ./
+COPY .env poetry.lock pyproject.toml ./
 RUN poetry install --no-root
 
 # Run your app
-COPY ./app /app
-
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+COPY ./app /code/app
+CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
