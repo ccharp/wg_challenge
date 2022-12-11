@@ -1,9 +1,10 @@
+from pathlib import Path
+
 from fastapi.testclient import TestClient
-from .. import main
+
 from .. import config
 from .. import file_system as fs
-
-from pathlib import Path
+from .. import main
 
 client = TestClient(main.app)
 
@@ -18,7 +19,11 @@ def test_get_root():
     actual_json = response.json()
     verify_get(actual_json, config.Settings().active_path)
 
-    # TODO: try testing with a different configured path (root dir) 
+    # TODO: test with a different configured path (active_path, root dir) 
+    # TODO: test with active_path that doesn't exist on file system
+    # TODO: test with active_path that is a file
+    # TODO: test with active_path that is a symlink
+    # TODO: test with active_path where permission is denied 
 
 # Now try changing the default configuration path
 def test_get_path():
@@ -47,11 +52,11 @@ def test_get_path():
 
     # Try with an invalid path
     response = client.get("/app/invalid")
-    assert response.status_code == 418 
+    assert response.status_code == 404 
     assert response.json() == {"detail": "Invalid path"}
 
     response = client.get("*")
-    assert response.status_code == 418 
+    assert response.status_code == 404 
     assert response.json() == {"detail": "Invalid path"}
    
 TEST_PATH = Path("app/test/")
@@ -67,8 +72,10 @@ def test_delete():
     assert response.json() == {"path": "app/test/test_file.txt", "output": "Deleted"}
     assert not test_path.exists()
 
+    # TODO: try deleting a directory, both with and without contents
+
     # use invalid path
     response = client.delete("app/test/invalid") 
-    assert response.status_code == 418
+    assert response.status_code == 404
     assert response.json() == {"detail": "Invalid path"}
     # TODO: ensure that nothing was deleted! :) 

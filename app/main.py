@@ -56,7 +56,8 @@ async def path (input_path: str, settings: config.Settings = Depends(get_setting
 # Wrapper for boilerplate I anticipate if this were fully fleshed out
 def validate_path(path: Path):
     if(not fs.validate_path(path)):
-        raise HTTPException(status_code=418, detail="Invalid path")
+        # Right now, this only comes up with the given path does not exist
+        raise HTTPException(status_code=404, detail="Invalid path")
 
 
 # TODO: implement put and post
